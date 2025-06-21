@@ -23,7 +23,6 @@ services:
             - sail
         depends_on:
             - mysql
-            - redis
     mysql:
         image: 'mysql/mysql-server:8.0'
         ports:
@@ -48,21 +47,17 @@ services:
                 - '-p${DB_PASSWORD}'
             retries: 3
             timeout: 5s
-    redis:
-        image: 'redis:alpine'
+    phpmyadmin:
+        image: 'phpmyadmin:latest'
         ports:
-            - '${FORWARD_REDIS_PORT:-6379}:6379'
-        volumes:
-            - 'sail-redis:/data'
+            - 8080:80
         networks:
             - sail
-        healthcheck:
-            test:
-                - CMD
-                - redis-cli
-                - ping
-            retries: 3
-            timeout: 5s
+        environment:
+            - PMA_ARBITARY=1
+            - PMA_HOST=mysql
+        depends_on:
+            - mysql
 networks:
     sail:
         driver: bridge
